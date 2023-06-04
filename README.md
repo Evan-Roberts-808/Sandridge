@@ -1,5 +1,6 @@
-# Phase 3 CLI Project Template
-
+#################################################################
+![image](https://github.com/Evan-Roberts-808/Sandridge/assets/105817690/f4f35e90-f2b8-4ecc-a29e-13dee1784fcd)
+#################################################################
 ## Learning Goals
 
 - Discuss the basic directory structure of a CLI.

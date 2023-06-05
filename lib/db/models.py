@@ -18,8 +18,11 @@ class PlayerInventory(Base):
     quantity = Column(Integer) 
     item = relationship('FoodAndDrinks') 
 
-
 class ShopInventory(Base):
-    pass
+    __tablename__ = 'shop_inventory'
+    id = Column(Integer, primary_key=True)
+    item_id = Column(Integer, ForeignKey('food_and_drinks.id'))
+    price = Column(Integer)
+    item = relationship('FoodAndDrinks')
 
 Base.metadata.create_all()

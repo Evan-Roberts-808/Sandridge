@@ -12,7 +12,12 @@ class FoodAndDrinks(Base):
     price = Column(Integer)
 
 class PlayerInventory(Base):
-    pass
+    __tablename__ = 'player_inventory'
+    id = Column(Integer, primary_key=True)
+    item_id = Column(Integer, ForeignKey('food_and_drinks.id'))
+    quantity = Column(Integer) 
+    item = relationship('FoodAndDrinks') 
+
 
 class ShopInventory(Base):
     pass

@@ -1,8 +1,11 @@
-from sqlalchemy import Column, ForeignKey, Integer, String
-from sqlalchemy.orm import relationship
+from sqlalchemy import create_engine,Column, ForeignKey, Integer, String
+from sqlalchemy.orm import relationship, sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 
 Base = declarative_base()
+engine = create_engine('sqlite:///sandridge.db')
+Session = sessionmaker(bind=engine)
+session = Session()
 
 class FoodAndDrinks(Base):
     __tablename__ = 'food_and_drinks'
@@ -25,4 +28,4 @@ class ShopInventory(Base):
     price = Column(Integer)
     item = relationship('FoodAndDrinks')
 
-Base.metadata.create_all()
+Base.metadata.create_all(bind=engine)

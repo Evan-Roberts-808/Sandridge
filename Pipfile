@@ -5,6 +5,12 @@ name = "pypi"
 
 [packages]
 ipdb = "*"
+pyinquirer = "*"
+prompt-toolkit = "*"
+sqlalchemy = "*"
+alembic = "*"
+click = "*"
+colorama = "*"
 
 [dev-packages]
 

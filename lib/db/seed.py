@@ -82,8 +82,7 @@ def seed_food_or_drinks():
         session.add(item)
 
     session.commit()
-
-
+    
 if __name__ == '__main__':
     delete_records()
     seed_food_or_drinks()

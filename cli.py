@@ -18,15 +18,18 @@ class CLI:
         self.choices = {
             "1": self.show_shop,
             "2": self.show_inventory,
+            "3": self.buy_item,
             "q": self.quit
         }
 
     def restock_shop(self):
         food_and_drinks = session.query(FoodAndDrinks).all()
         for item in food_and_drinks:
-            shop_item = ShopInventory(
-                item_id=item.id, price=item.price, quantity=10)
-            session.add(shop_item)
+            existing_item = session.query(ShopInventory).filter_by(item_id=item.id).first()
+            if not existing_item:
+                shop_item = ShopInventory(
+                    item_id=item.id, price=item.price, quantity=10)
+                session.add(shop_item)
         session.commit()
 
     def show_shop(self):
@@ -35,6 +38,7 @@ class CLI:
         table.add_column("ID", justify="right")
         table.add_column("Item")
         table.add_column("Price", justify="right")
+        table.add_column("Quantity", justify="right")
 
         shop_items = session.query(ShopInventory).join(FoodAndDrinks).all()
 
@@ -44,7 +48,7 @@ class CLI:
             return
 
         for item in shop_items:
-            table.add_row(str(item.item_id), item.item.name, str(item.price))
+            table.add_row(str(item.item_id), item.item.name, str(item.price), str(item.quantity))
 
         self.console.print(table)
 
@@ -69,10 +73,10 @@ class CLI:
             return
 
         selected_item = item_choices[item_prompt]
-        quantity = Prompt.ask(
-            "Enter the quantity you want to purchase:", type=int)
+        quantity = int(Prompt.ask("Enter the quantity you want to purchase:"))
 
         if quantity <= selected_item.quantity:
+            selected_item.quantity -= quantity
             player_item = PlayerInventory(
                 item_id=selected_item.item_id, quantity=quantity)
             session.add(player_item)
@@ -113,10 +117,11 @@ class CLI:
             self.console.print("[bold]Sandridge Shop[/bold]")
             self.console.print("1. Show Shop Inventory")
             self.console.print("2. Show Player Inventory")
+            self.console.print("3. Buy Item")
             self.console.print("q. Quit")
 
             choice = Prompt.ask("What would you like to do?",
-                                choices=["1", "2", "q"])
+                                choices=["1", "2", "3", "q"])
 
             if choice in self.choices:
                 self.choices[choice]()

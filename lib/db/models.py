@@ -29,6 +29,7 @@ class ShopInventory(Base):
     id = Column(Integer(), primary_key=True)
     item_id = Column(Integer(), ForeignKey('food_and_drinks.id'))
     price = Column(Integer())
+    quantity = Column(Integer())
     item = relationship('FoodAndDrinks')
 
 

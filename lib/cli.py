@@ -36,3 +36,36 @@ def shop():
     choices.append(Separator())
     choices.append({"name": "Quit", "value": None})
 
+    #questions
+    questions = [
+        {
+            "type": "list", 
+            "name": "item",
+            "message": "select an item to purchase: ",
+            "choices": choices
+        },   
+        {
+            "type": "input",
+            "name": "quantity",
+            "message": "how many would you like? ",
+            "when": lambda answers: answers["item"] is not None 
+        }
+    ]
+    answers = prompt(questions)
+    
+    if answers["item"] is None:
+        click.echo("Thank you for visiting the Sandridge shop! See you next time!")
+        return
+    selected_item = answers["item"]
+    quantity = int(answers["quantity"])
+    
+    #checks if selected item is already in the shop inventory
+    if quantity <= selected_item.quantity:
+        #creates a new player inventory record
+        player_item = PlayerInventory(item_id=selected_item.item_id, quantity = quantity)
+        session.add(player_item)
+        session.commit()
+        click.echo(f'You have purchased {quantity} {selected_item.item.name}.')
+        
+if __name__ == '__main__':
+    cli()

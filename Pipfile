@@ -11,6 +11,7 @@ sqlalchemy = "*"
 alembic = "*"
 click = "*"
 colorama = "*"
+pyfiglet = "*"
 
 [dev-packages]
 

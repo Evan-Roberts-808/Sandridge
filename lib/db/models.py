@@ -7,6 +7,13 @@ engine = create_engine('sqlite:///sandridge.db')
 Session = sessionmaker(bind=engine)
 session = Session()
 
+class Location(Base):
+    __tablename__ = 'locations'
+    id = Column(Integer, primary_key=True)
+    name = Column(String())
+    description = Column(String())
+    shop_inventory = relationship('ShopInventory', back_populates='location')
+
 
 class FoodAndDrinks(Base):
     __tablename__ = 'food_and_drinks'
@@ -14,6 +21,7 @@ class FoodAndDrinks(Base):
     name = Column(String())
     description = Column(String())
     price = Column(Integer())
+    shop_inventory = relationship('ShopInventory', back_populates='item')
 
 
 class PlayerInventory(Base):
@@ -30,7 +38,8 @@ class ShopInventory(Base):
     item_id = Column(Integer(), ForeignKey('food_and_drinks.id'))
     price = Column(Integer())
     quantity = Column(Integer())
-    item = relationship('FoodAndDrinks')
-
+    item = relationship('FoodAndDrinks', back_populates='shop_inventory')
+    location_id = Column(Integer(), ForeignKey('locations.id'))
+    location = relationship('Location', back_populates='shop_inventory')
 
 Base.metadata.create_all(bind=engine)

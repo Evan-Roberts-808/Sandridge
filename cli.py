@@ -1,3 +1,4 @@
+from pyfiglet import Figlet
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from lib.db.models import FoodAndDrinks, PlayerInventory, ShopInventory
@@ -25,7 +26,8 @@ class CLI:
     def restock_shop(self):
         food_and_drinks = session.query(FoodAndDrinks).all()
         for item in food_and_drinks:
-            existing_item = session.query(ShopInventory).filter_by(item_id=item.id).first()
+            existing_item = session.query(
+                ShopInventory).filter_by(item_id=item.id).first()
             if not existing_item:
                 shop_item = ShopInventory(
                     item_id=item.id, price=item.price, quantity=10)
@@ -48,7 +50,8 @@ class CLI:
             return
 
         for item in shop_items:
-            table.add_row(str(item.item_id), item.item.name, str(item.price), str(item.quantity))
+            table.add_row(str(item.item_id), item.item.name,
+                          str(item.price), str(item.quantity))
 
         self.console.print(table)
 
@@ -73,7 +76,7 @@ class CLI:
             return
 
         selected_item = item_choices[item_prompt]
-        quantity = int(Prompt.ask("Enter the quantity you want to purchase:"))
+        quantity = int(Prompt.ask("Enter the quantity you want to purchase"))
 
         if quantity <= selected_item.quantity:
             selected_item.quantity -= quantity
@@ -112,6 +115,26 @@ class CLI:
         raise SystemExit
 
     def run(self):
+        ascii_art = """
+            
+  sSSs   .S_SSSs     .S_sSSs     .S_sSSs     .S_sSSs     .S   .S_sSSs      sSSSSs    sSSs          sSSs   .S    S.     sSSs_sSSs     .S_sSSs    
+ d%%SP  .SS~SSSSS   .SS~YS%%b   .SS~YS%%b   .SS~YS%%b   .SS  .SS~YS%%b    d%%%%SP   d%%SP         d%%SP  .SS    SS.   d%%SP~YS%%b   .SS~YS%%b   
+d%S'    S%S   SSSS  S%S   `S%b  S%S   `S%b  S%S   `S%b  S%S  S%S   `S%b  d%S'      d%S'          d%S'    S%S    S%S  d%S'     `S%b  S%S   `S%b  
+S%|     S%S    S%S  S%S    S%S  S%S    S%S  S%S    S%S  S%S  S%S    S%S  S%S       S%S           S%|     S%S    S%S  S%S       S%S  S%S    S%S  
+S&S     S%S SSSS%S  S%S    S&S  S%S    S&S  S%S    d*S  S&S  S%S    S&S  S&S       S&S           S&S     S%S SSSS%S  S&S       S&S  S%S    d*S  
+Y&Ss    S&S  SSS%S  S&S    S&S  S&S    S&S  S&S   .S*S  S&S  S&S    S&S  S&S       S&S_Ss        Y&Ss    S&S  SSS&S  S&S       S&S  S&S   .S*S  
+`S&&S   S&S    S&S  S&S    S&S  S&S    S&S  S&S_sdSSS   S&S  S&S    S&S  S&S       S&S~SP        `S&&S   S&S    S&S  S&S       S&S  S&S_sdSSS   
+  `S*S  S&S    S&S  S&S    S&S  S&S    S&S  S&S~YSY%b   S&S  S&S    S&S  S&S sSSs  S&S             `S*S  S&S    S&S  S&S       S&S  S&S~YSSY    
+   l*S  S*S    S&S  S*S    S*S  S*S    d*S  S*S   `S%b  S*S  S*S    d*S  S*b `S%%  S*b              l*S  S*S    S*S  S*b       d*S  S*S         
+  .S*P  S*S    S*S  S*S    S*S  S*S   .S*S  S*S    S%S  S*S  S*S   .S*S  S*S   S%  S*S.            .S*P  S*S    S*S  S*S.     .S*S  S*S         
+sSS*S   S*S    S*S  S*S    S*S  S*S_sdSSS   S*S    S&S  S*S  S*S_sdSSS    SS_sSSS   SSSbs        sSS*S   S*S    S*S   SSSbs_sdSSS   S*S         
+YSS'    SSS    S*S  S*S    SSS  SSS~YSSY    S*S    SSS  S*S  SSS~YSSY      Y~YSSY    YSSP        YSS'    SSS    S*S    YSSP~YSSY    S*S         
+               SP   SP                      SP          SP                                                      SP                  SP          
+               Y    Y                       Y           Y                                                       Y                   Y           
+                                                                                                                                                
+
+        """
+        print(ascii_art)
         self.restock_shop()
         while True:
             self.console.print("[bold]Sandridge Shop[/bold]")

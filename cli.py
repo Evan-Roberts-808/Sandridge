@@ -11,9 +11,29 @@ Session = sessionmaker(bind=engine)
 session = Session()
 
 console = Console()
-
+ascii_bettys_diner = """
+                            ⠀⠀⠀⠀⠀⠀⠀⣀⣤⣶⣶⣿⣿⣿⣿⣿⣿⠿⠷⣶⣦⣄⡀⠀⠀⠀⠀⠀⠀⠀
+                            ⠀⠀⠀⠀⢀⣴⣿⣿⣿⣿⣯⣀⣹⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣷⣄⠀⠀⠀⠀⠀
+                            ⠀⠀⠀⢠⣿⠿⠿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣁⣈⣽⣿⣷⡀⠀⠀⠀
+                            ⠀⠀⠀⣿⣿⣶⣴⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡿⠿⢿⣧⠀⠀⠀
+                            ⠀⠀⠀⠛⠿⠿⠿⠿⠿⠿⠿⠿⠿⠿⠿⠧⠤⠾⠿⠿⠿⠿⠿⠷⠶⠾⠟⠀⠀⠀
+                            ⠀⠀⠀⢶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⠶⠶⠀⠀⠀
+                            ⠀⠀⣠⣤⣤⣤⣤⣤⣤⣄⣀⣀⣈⣉⣉⣉⣀⣀⣀⣀⣀⣠⣤⣤⣤⣤⣤⣄⠀⠀
+                            ⠀⠀⢿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠀⠀
+                            ⠀⠀⢀⣤⣭⠉⠉⠉⢉⣉⡉⠉⠉⠉⣉⣉⠉⠉⠉⢉⣉⠉⠉⠉⢉⣭⣄⠀⠀⠀
+                            ⠀⠰⡟⠁⠈⢷⣤⣴⠟⠉⠻⣄⣠⡾⠋⠙⠳⣤⣴⠟⠉⠳⣦⣠⡾⠃⠙⢷⡄⠀
+                            ⠀⠀⠀⢀⣀⣀⣉⡀⠀⠀⠀⠈⠉⠀⠀⠀⣀⣈⣁⣀⣀⣀⣀⣉⣀⣀⠀⠀⠀⠀
+                            ⠀⠀⠀⠛⠛⠛⠛⠛⠛⠻⠿⠿⠿⠿⠿⠿⠿⠿⠿⠿⠛⠛⠛⠛⠛⠛⠛⠃⠀⠀
+                            ⠀⠀⠀⢸⣿⣿⣿⣿⣷⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣿⣿⣿⣿⣿⣿⣿⠀⠀⠀  
+  _      __    __                     __         ___      __  __      _        ___  _             
+ | | /| / /__ / /______  __ _  ___   / /____    / _ )___ / /_/ /___ _( )___   / _ \(_)__  ___ ____
+ | |/ |/ / -_) / __/ _ \/  ' \/ -_) / __/ _ \  / _  / -_) __/ __/ // //(_-<  / // / / _ \/ -_) __/
+ |__/|__/\__/_/\__/\___/_/_/_/\__/  \__/\___/ /____/\__/\__/\__/\_, / /___/ /____/_/_//_/\__/_/   
+                                                               /___/                              
+        """
 
 class CLI:
+
     def __init__(self):
         self.console = Console()
         self.choices = {
@@ -77,6 +97,10 @@ class CLI:
         if location_prompt in location_choices:
             self.current_location = location_choices[location_prompt]
             self.choices = self.location_choices
+
+            if self.current_location.name == "Bettys Diner":
+                self.console.print(ascii_bettys_diner)
+
         else:
             self.console.print("Invalid location. Please try again.")
 
@@ -185,6 +209,8 @@ YSS'    SSS    S*S  S*S    SSS  SSS~YSSY    S*S    SSS  S*S  SSS~YSSY      Y~YSS
                                                                                            
 
         """
+
+
         self.console.print(ascii_art)
         self.console.print("Welcome to the Sandridge shop!")
         self.console.print("Please select an option:")

@@ -1,6 +1,6 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from models import FoodAndDrinks
+from models import FoodAndDrinks, Location
 
 engine = create_engine('sqlite:///sandridge.db')
 Session = sessionmaker(bind=engine)
@@ -11,6 +11,12 @@ def delete_records():
     session.query(FoodAndDrinks).delete()
     session.commit()
 
+
+def seed_locations():
+    diner = Location(name = 'Bettys Diner', description = 'The Diner in Sandridge is a classic American eatery, serving as the central meeting place for locals. It exudes a nostalgic charm, with cozy booths, a bustling counter, and a welcoming atmosphere.')
+    convenience_store = Location(name = 'Oasis Fuel n Go', description = 'Your One-Stop Pit Stop for All Your Needs! Fill up on gas, grab snacks, and discover unexpected treasures at Sandridges liveliest convenience store. Fuel up your car and adventure, all in one convenient spot!')
+    session.add_all([diner, convenience_store])
+    session.commit()
 
 def seed_food_or_drinks():
     # seed data for FoodAndDrinks Table
@@ -85,5 +91,6 @@ def seed_food_or_drinks():
     
 if __name__ == '__main__':
     delete_records()
+    seed_locations()
     seed_food_or_drinks()
     print("Data seeding complete")

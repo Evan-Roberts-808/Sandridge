@@ -68,7 +68,7 @@ class CLI:
             item_choices[str(item.item_id)] = item
 
         item_prompt = Prompt.ask(
-            "Enter the ID of the item you want to purchase:", choices=item_choices)
+            "Can you enter the ID of the item you want to purchase?:", choices=item_choices)
 
         if not item_prompt:
             self.console.print(
@@ -76,7 +76,7 @@ class CLI:
             return
 
         selected_item = item_choices[item_prompt]
-        quantity = int(Prompt.ask("Enter the quantity you want to purchase"))
+        quantity = int(Prompt.ask("Great! How many of those would you like?"))
 
         if quantity <= selected_item.quantity:
             selected_item.quantity -= quantity

@@ -38,8 +38,9 @@ class ShopInventory(Base):
     item_id = Column(Integer(), ForeignKey('food_and_drinks.id'))
     price = Column(Integer())
     quantity = Column(Integer())
-    item = relationship('FoodAndDrinks', back_populates='shop_inventory')
     location_id = Column(Integer(), ForeignKey('locations.id'))
+
+    item = relationship('FoodAndDrinks', back_populates='shop_inventory')
     location = relationship('Location', back_populates='shop_inventory')
 
 Base.metadata.create_all(bind=engine)

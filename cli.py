@@ -1,7 +1,7 @@
 from pyfiglet import Figlet
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from lib.db.models import FoodAndDrinks, PlayerInventory, ShopInventory
+from lib.db.models import FoodAndDrinks, PlayerInventory, ShopInventory, Location
 from rich.console import Console
 from rich.table import Table
 from rich.prompt import Prompt
@@ -17,24 +17,71 @@ class CLI:
     def __init__(self):
         self.console = Console()
         self.choices = {
-            "1": self.show_shop,
-            "2": self.show_inventory,
-            "3": self.buy_item,
+            "1": self.select_location,
+            "2": self.show_player_inventory,
             "q": self.quit
         }
+        self.location_choices = {
+            "1": self.select_location,
+            "3": self.view_shop,
+            "2": self.show_player_inventory,
+            "4": self.buy_item,
+            "q": self.quit
+        }
+        self.current_location = None
 
     def restock_shop(self):
         food_and_drinks = session.query(FoodAndDrinks).all()
+
+        # this should define the location ID for each item based on its location
+        location_ids = {
+            'cheeseburger': 1,
+            'pancake': 1,
+            'milkshake': 1,
+            'french fries': 1,
+            'candy bar': 2,
+            'beef jerky': 2,
+            'energy drink': 2,
+            'bag of chips': 2,
+            'bottled water': 2,
+            'fruit salad cup': 2,
+            'granola bar': 2,
+            'protein shake': 2,
+        }
+
         for item in food_and_drinks:
             existing_item = session.query(
                 ShopInventory).filter_by(item_id=item.id).first()
             if not existing_item:
-                shop_item = ShopInventory(
-                    item_id=item.id, price=item.price, quantity=10)
-                session.add(shop_item)
+                # Assign the location ID based on the item's name
+                location_id = location_ids.get(item.name.lower())
+                if location_id:
+                    shop_item = ShopInventory(
+                        item_id=item.id, price=item.price, quantity=10, location_id=location_id)
+                    session.add(shop_item)
         session.commit()
 
-    def show_shop(self):
+    def select_location(self):
+        self.console.print("[bold]Select Location[/bold]")
+        locations = session.query(Location).all()
+        location_choices = {
+            str(location.id): location for location in locations}
+
+        for i, location in enumerate(locations, start=1):
+            self.console.print(f"{i}. {location.name}")
+            location_choices[str(i)] = location
+
+        location_prompt = Prompt.ask(
+            "Please select a location:", choices=location_choices)
+
+        if location_prompt in location_choices:
+            self.current_location = location_choices[location_prompt]
+            self.choices = self.location_choices
+        else:
+            self.console.print("Invalid location. Please try again.")
+
+    def view_shop(self):
+        self.console.print("[bold]Shop Inventory[/bold]")
         table = Table(title="Shop Inventory",
                       show_header=True, header_style="bold")
         table.add_column("ID", justify="right")
@@ -42,7 +89,8 @@ class CLI:
         table.add_column("Price", justify="right")
         table.add_column("Quantity", justify="right")
 
-        shop_items = session.query(ShopInventory).join(FoodAndDrinks).all()
+        shop_items = session.query(ShopInventory).join(FoodAndDrinks).filter(
+            ShopInventory.location_id == self.current_location.id).all()
 
         if not shop_items:
             self.console.print(
@@ -55,8 +103,31 @@ class CLI:
 
         self.console.print(table)
 
+    def show_player_inventory(self):
+        self.console.print("[bold]Player Inventory[/bold]")
+        table = Table(title="Player Inventory",
+                      show_header=True, header_style="bold")
+        table.add_column("ID", justify="right")
+        table.add_column("Item")
+        table.add_column("Quantity", justify="right")
+
+        inventory_items = session.query(
+            PlayerInventory).join(FoodAndDrinks).all()
+
+        if not inventory_items:
+            self.console.print("Your inventory is empty.")
+            return
+
+        for item in inventory_items:
+            table.add_row(str(item.item_id), item.item.name,
+                          str(item.quantity))
+
+        self.console.print(table)
+
     def buy_item(self):
-        shop_items = session.query(ShopInventory).join(FoodAndDrinks).all()
+        self.console.print("[bold]Buy Item[/bold]")
+        shop_items = session.query(ShopInventory).join(FoodAndDrinks).filter(
+            ShopInventory.location_id == self.current_location.id).all()
 
         if not shop_items:
             self.console.print(
@@ -89,26 +160,6 @@ class CLI:
         else:
             self.console.print("Sorry, the selected item is out of stock.")
 
-    def show_inventory(self):
-        table = Table(title="Player Inventory",
-                      show_header=True, header_style="bold")
-        table.add_column("ID", justify="right")
-        table.add_column("Item")
-        table.add_column("Quantity", justify="right")
-
-        inventory_items = session.query(
-            PlayerInventory).join(FoodAndDrinks).all()
-
-        if not inventory_items:
-            self.console.print("Your inventory is empty.")
-            return
-
-        for item in inventory_items:
-            table.add_row(str(item.item_id), item.item.name,
-                          str(item.quantity))
-
-        self.console.print(table)
-
     def quit(self):
         self.console.print(
             "Thank you for visiting the Sandridge shop! See you next time!")
@@ -117,40 +168,45 @@ class CLI:
     def run(self):
         ascii_art = """
             
-  sSSs   .S_SSSs     .S_sSSs     .S_sSSs     .S_sSSs     .S   .S_sSSs      sSSSSs    sSSs          sSSs   .S    S.     sSSs_sSSs     .S_sSSs    
- d%%SP  .SS~SSSSS   .SS~YS%%b   .SS~YS%%b   .SS~YS%%b   .SS  .SS~YS%%b    d%%%%SP   d%%SP         d%%SP  .SS    SS.   d%%SP~YS%%b   .SS~YS%%b   
-d%S'    S%S   SSSS  S%S   `S%b  S%S   `S%b  S%S   `S%b  S%S  S%S   `S%b  d%S'      d%S'          d%S'    S%S    S%S  d%S'     `S%b  S%S   `S%b  
-S%|     S%S    S%S  S%S    S%S  S%S    S%S  S%S    S%S  S%S  S%S    S%S  S%S       S%S           S%|     S%S    S%S  S%S       S%S  S%S    S%S  
-S&S     S%S SSSS%S  S%S    S&S  S%S    S&S  S%S    d*S  S&S  S%S    S&S  S&S       S&S           S&S     S%S SSSS%S  S&S       S&S  S%S    d*S  
-Y&Ss    S&S  SSS%S  S&S    S&S  S&S    S&S  S&S   .S*S  S&S  S&S    S&S  S&S       S&S_Ss        Y&Ss    S&S  SSS&S  S&S       S&S  S&S   .S*S  
-`S&&S   S&S    S&S  S&S    S&S  S&S    S&S  S&S_sdSSS   S&S  S&S    S&S  S&S       S&S~SP        `S&&S   S&S    S&S  S&S       S&S  S&S_sdSSS   
-  `S*S  S&S    S&S  S&S    S&S  S&S    S&S  S&S~YSY%b   S&S  S&S    S&S  S&S sSSs  S&S             `S*S  S&S    S&S  S&S       S&S  S&S~YSSY    
-   l*S  S*S    S&S  S*S    S*S  S*S    d*S  S*S   `S%b  S*S  S*S    d*S  S*b `S%%  S*b              l*S  S*S    S*S  S*b       d*S  S*S         
-  .S*P  S*S    S*S  S*S    S*S  S*S   .S*S  S*S    S%S  S*S  S*S   .S*S  S*S   S%  S*S.            .S*P  S*S    S*S  S*S.     .S*S  S*S         
-sSS*S   S*S    S*S  S*S    S*S  S*S_sdSSS   S*S    S&S  S*S  S*S_sdSSS    SS_sSSS   SSSbs        sSS*S   S*S    S*S   SSSbs_sdSSS   S*S         
-YSS'    SSS    S*S  S*S    SSS  SSS~YSSY    S*S    SSS  S*S  SSS~YSSY      Y~YSSY    YSSP        YSS'    SSS    S*S    YSSP~YSSY    S*S         
-               SP   SP                      SP          SP                                                      SP                  SP          
-               Y    Y                       Y           Y                                                       Y                   Y           
-                                                                                                                                                
+  sSSs   .S_SSSs     .S_sSSs     .S_sSSs     .S_sSSs     .S   .S_sSSs      sSSSSs    sSSs  
+ d%%SP  .SS~SSSSS   .SS~YS%%b   .SS~YS%%b   .SS~YS%%b   .SS  .SS~YS%%b    d%%%%SP   d%%SP  
+d%S'    S%S   SSSS  S%S   `S%b  S%S   `S%b  S%S   `S%b  S%S  S%S   `S%b  d%S'      d%S'    
+S%|     S%S    S%S  S%S    S%S  S%S    S%S  S%S    S%S  S%S  S%S    S%S  S%S       S%S     
+S&S     S%S SSSS%S  S%S    S&S  S%S    S&S  S%S    d*S  S&S  S%S    S&S  S&S       S&S     
+Y&Ss    S&S  SSS%S  S&S    S&S  S&S    S&S  S&S   .S*S  S&S  S&S    S&S  S&S       S&S_Ss  
+`S&&S   S&S    S&S  S&S    S&S  S&S    S&S  S&S_sdSSS   S&S  S&S    S&S  S&S       S&S~SP  
+  `S*S  S&S    S&S  S&S    S&S  S&S    S&S  S&S~YSY%b   S&S  S&S    S&S  S&S sSSs  S&S     
+   l*S  S*S    S&S  S*S    S*S  S*S    d*S  S*S   `S%b  S*S  S*S    d*S  S*b `S%%  S*b     
+  .S*P  S*S    S*S  S*S    S*S  S*S   .S*S  S*S    S%S  S*S  S*S   .S*S  S*S   S%  S*S.    
+sSS*S   S*S    S*S  S*S    S*S  S*S_sdSSS   S*S    S&S  S*S  S*S_sdSSS    SS_sSSS   SSSbs  
+YSS'    SSS    S*S  S*S    SSS  SSS~YSSY    S*S    SSS  S*S  SSS~YSSY      Y~YSSY    YSSP  
+               SP   SP                      SP          SP                                 
+               Y    Y                       Y           Y                                  
+                                                                                           
 
         """
-        print(ascii_art)
-        self.restock_shop()
+        self.console.print(ascii_art)
+        self.console.print("Welcome to the Sandridge shop!")
+        self.console.print("Please select an option:")
         while True:
-            self.console.print("[bold]Sandridge Shop[/bold]")
-            self.console.print("1. Show Shop Inventory")
+            self.console.print("[bold]Main Menu[/bold]")
+            self.console.print("1. Select Location")
             self.console.print("2. Show Player Inventory")
-            self.console.print("3. Buy Item")
+            if self.current_location:
+                self.console.print("3. View Shop Inventory")
+                self.console.print("4. Buy Item")
             self.console.print("q. Quit")
 
-            choice = Prompt.ask("What would you like to do?",
-                                choices=["1", "2", "3", "q"])
+            choice = Prompt.ask("What would you like to do?", choices=self.choices)
 
-            if choice in self.choices:
-                self.choices[choice]()
+            action = self.choices.get(choice)
+            if action:
+                action()
             else:
                 self.console.print("Invalid choice. Please try again.")
 
 
-cli = CLI()
-cli.run()
+if __name__ == "__main__":
+    cli = CLI()
+    cli.restock_shop()
+    cli.run()

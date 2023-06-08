@@ -1,4 +1,5 @@
 from pyfiglet import Figlet
+from colorama import init, Fore, Style
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from lib.db.models import FoodAndDrinks, PlayerInventory, ShopInventory, Location
@@ -11,7 +12,9 @@ Session = sessionmaker(bind=engine)
 session = Session()
 
 console = Console()
-ascii_bettys_diner = """
+
+white = "\033[0m"
+ascii_bettys_diner = f"""{white}
                             ⠀⠀⠀⠀⠀⠀⠀⣀⣤⣶⣶⣿⣿⣿⣿⣿⣿⠿⠷⣶⣦⣄⡀⠀⠀⠀⠀⠀⠀⠀
                             ⠀⠀⠀⠀⢀⣴⣿⣿⣿⣿⣯⣀⣹⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣷⣄⠀⠀⠀⠀⠀
                             ⠀⠀⠀⢠⣿⠿⠿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣁⣈⣽⣿⣷⡀⠀⠀⠀
@@ -32,19 +35,19 @@ ascii_bettys_diner = """
                                                                /___/                              
         """
 
-ascii_oasis_fuel_n_go = """
+ascii_oasis_fuel_n_go = f"""{white}
 
-⠀⠈⠛⠻⠶⣶⡄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠈⢻⣆⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⢻⡏⠉⠉⠉⠉⢹⡏⠉⠉⠉⠉⣿⠉⠉⠉⠉⠉⣹⠇⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠈⣿⣀⣀⣀⣀⣸⣧⣀⣀⣀⣀⣿⣄⣀⣀⣀⣠⡿⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⠸⣧⠀⠀⠀⢸⡇⠀⠀⠀⠀⣿⠁⠀⠀⠀⣿⠃⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⢹⣧⣤⣤⣼⣧⣤⣤⣤⣤⣿⣤⣤⣤⣼⡏⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢿⠀⠀⢸⡇⠀⠀⠀⠀⣿⠀⠀⢠⡿⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢸⣷⠤⠼⠷⠤⠤⠤⠤⠿⠦⠤⠾⠃⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣾⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⢾⣷⢶⣶⠶⠶⠶⠶⠶⠶⣶⠶⣶⡶⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⠸⣧⣠⡿⠀⠀⠀⠀⠀⠀⢷⣄⣼⠇⠀⠀⠀⠀⠀⠀⠀
+                                            ⠀⠈⠛⠻⠶⣶⡄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+                                            ⠀⠀⠀⠀⠀⠈⢻⣆⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⠀⠀⠀
+                                            ⠀⠀⠀⠀⠀⠀⠀⢻⡏⠉⠉⠉⠉⢹⡏⠉⠉⠉⠉⣿⠉⠉⠉⠉⠉⣹⠇⠀⠀⠀
+                                            ⠀⠀⠀⠀⠀⠀⠀⠈⣿⣀⣀⣀⣀⣸⣧⣀⣀⣀⣀⣿⣄⣀⣀⣀⣠⡿⠀⠀⠀⠀
+                                            ⠀⠀⠀⠀⠀⠀⠀⠀⠸⣧⠀⠀⠀⢸⡇⠀⠀⠀⠀⣿⠁⠀⠀⠀⣿⠃⠀⠀⠀⠀
+                                            ⠀⠀⠀⠀⠀⠀⠀⠀⠀⢹⣧⣤⣤⣼⣧⣤⣤⣤⣤⣿⣤⣤⣤⣼⡏⠀⠀⠀⠀⠀
+                                            ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢿⠀⠀⢸⡇⠀⠀⠀⠀⣿⠀⠀⢠⡿⠀⠀⠀⠀⠀⠀
+                                            ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢸⣷⠤⠼⠷⠤⠤⠤⠤⠿⠦⠤⠾⠃⠀⠀⠀⠀⠀⠀
+                                            ⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣾⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+                                            ⠀⠀⠀⠀⠀⠀⠀⠀⠀⢾⣷⢶⣶⠶⠶⠶⠶⠶⠶⣶⠶⣶⡶⠀⠀⠀⠀⠀⠀⠀
+                                            ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠸⣧⣠⡿⠀⠀⠀⠀⠀⠀⢷⣄⣼⠇⠀⠀⠀⠀⠀⠀⠀
 
   /$$$$$$                      /$$                 /$$$$$$$$                  /$$                        /$$$$$$           
  /$$__  $$                    |__/                | $$_____/                 | $$                       /$$__  $$          
@@ -56,6 +59,7 @@ ascii_oasis_fuel_n_go = """
  \______/  \_______/|_______/ |__/|_______/       |__/    \______/  \_______/|__/      |__/  |__/       \______/  \______/ 
                                                                                                                                                                                                                                                                                                                                                                   
 """
+
 
 class CLI:
 
@@ -197,22 +201,33 @@ class CLI:
             return
 
         selected_item = item_choices[item_prompt]
-        quantity = int(Prompt.ask("Great! How many of those would you like?"))
+        quantity = int(Prompt.ask("Great! How many would you like to buy?:"))
 
-        if quantity <= selected_item.quantity:
+        if selected_item.quantity >= quantity:
+            total_cost = selected_item.price * quantity
+            player_item = session.query(PlayerInventory).filter_by(
+                item_id=selected_item.item_id).first()
+            if player_item:
+                player_item.quantity += quantity
+            else:
+                player_item = PlayerInventory(
+                    item_id=selected_item.item_id, quantity=quantity)
+                session.add(player_item)
+
             selected_item.quantity -= quantity
-            player_item = PlayerInventory(
-                item_id=selected_item.item_id, quantity=quantity)
-            session.add(player_item)
             session.commit()
+
             self.console.print(
-                f"You have purchased {quantity} {selected_item.item.name}.")
+                f"You have successfully purchased {quantity} {selected_item.item.name}(s) for a total cost of {total_cost}."
+            )
         else:
-            self.console.print("Sorry, the selected item is out of stock.")
+            self.console.print(
+                f"Sorry, there is not enough stock for {quantity} {selected_item.item.name}(s). Please try again later."
+            )
 
     def quit(self):
         self.console.print(
-            "Thank you for visiting the Sandridge shop! See you next time!")
+            "Thank you for visiting the Sandridge! See you next time!")
         raise SystemExit
 
     def run(self):
@@ -236,9 +251,8 @@ YSS'    SSS    S*S  S*S    SSS  SSS~YSSY    S*S    SSS  S*S  SSS~YSSY      Y~YSS
 
         """
 
-
         self.console.print(ascii_art)
-        self.console.print("Welcome to the Sandridge shop!")
+        self.console.print("Welcome to the Sandridge!")
         self.console.print("Please select an option:")
         while True:
             self.console.print("[bold]Main Menu[/bold]")
@@ -249,7 +263,8 @@ YSS'    SSS    S*S  S*S    SSS  SSS~YSSY    S*S    SSS  S*S  SSS~YSSY      Y~YSS
                 self.console.print("4. Buy Item")
             self.console.print("q. Quit")
 
-            choice = Prompt.ask("What would you like to do?", choices=self.choices)
+            choice = Prompt.ask(
+                "What would you like to do?", choices=self.choices)
 
             action = self.choices.get(choice)
             if action:

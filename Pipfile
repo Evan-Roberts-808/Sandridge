@@ -12,6 +12,7 @@ alembic = "*"
 click = "*"
 colorama = "*"
 pyfiglet = "*"
+rich = "*"
 
 [dev-packages]
 

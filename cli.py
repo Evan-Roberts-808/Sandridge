@@ -80,9 +80,9 @@ class CLI:
         self.current_location = None
 
     def restock_shop(self):
-        food_and_drinks = session.query(FoodAndDrinks).all()
+        food_and_drinks = session.query(FoodAndDrinks).all() #pulls data from FoodAndDrinks table and assigns it to food_and_drinks variable
 
-        # this should define the location ID for each item based on its location
+        # this defines the location ID for each item based on its location
         location_ids = {
             'cheeseburger': 1,
             'pancake': 1,
@@ -98,12 +98,11 @@ class CLI:
             'protein shake': 2,
         }
 
-        for item in food_and_drinks:
-            existing_item = session.query(
+        for item in food_and_drinks: #iterates over each item in food_and_drinks
+            existing_item = session.query( #checks item.id to see whether or not its already in the shop_inventory table
                 ShopInventory).filter_by(item_id=item.id).first()
-            if not existing_item:
-                # Assign the location ID based on the item's name
-                location_id = location_ids.get(item.name.lower())
+            if not existing_item: #if it isnt already in the shop_inventory table create a new object and commit it to the table
+                location_id = location_ids.get(item.name.lower()) # Assign the location ID based on the item's name
                 if location_id:
                     shop_item = ShopInventory(
                         item_id=item.id, price=item.price, quantity=10, location_id=location_id)
@@ -112,30 +111,31 @@ class CLI:
 
     def select_location(self):
         self.console.print("[bold]Select Location[/bold]")
-        locations = session.query(Location).all()
+        locations = session.query(Location).all() #queries from the locations table and assigns data to locations variable
         location_choices = {
-            str(location.id): location for location in locations}
+            str(location.id): location for location in locations} #creates a dict of locations id
 
-        for i, location in enumerate(locations, start=1):
+        for i, location in enumerate(locations, start=1): #loops over locations and enumerates them to obtain an index for each lcoation starting at 1 to use for location selection
             self.console.print(f"{i}. {location.name}")
             location_choices[str(i)] = location
 
         location_prompt = Prompt.ask(
-            "Please select a location:", choices=location_choices)
+            "Please select a location:", choices=location_choices) #creates prompt to ask for which location youd like to go to
 
-        if location_prompt in location_choices:
+        if location_prompt in location_choices: #checks if the answer to the prompt is within the choices, if it is sets the location to the selected one
             self.current_location = location_choices[location_prompt]
             self.choices = self.location_choices
 
-            if self.current_location.name == "Bettys Diner":
+            if self.current_location.name == "Bettys Diner": #depending on which selection is made prints corresponding ASCII art
                 self.console.print(ascii_bettys_diner)
             if self.current_location.name == "Oasis Fuel n Go":
                 self.console.print(ascii_oasis_fuel_n_go)
         else:
-            self.console.print("Invalid location. Please try again.")
+            self.console.print("Invalid location. Please try again.") #if valid location isnt selected prints invaled location
 
     def view_shop(self):
         self.console.print("[bold]Shop Inventory[/bold]")
+        #creates table that gets printing into the terminal to view what is in the shop
         table = Table(title="Shop Inventory",
                       show_header=True, header_style="bold")
         table.add_column("ID", justify="right")
@@ -143,67 +143,68 @@ class CLI:
         table.add_column("Price", justify="right")
         table.add_column("Quantity", justify="right")
 
-        shop_items = session.query(ShopInventory).join(FoodAndDrinks).filter(
+        shop_items = session.query(ShopInventory).join(FoodAndDrinks).filter( #queries to ShopInvetory table and filters the items within by the location id key
             ShopInventory.location_id == self.current_location.id).all()
 
-        if not shop_items:
+        if not shop_items: #if the shop has nothing for sale display out of stock
             self.console.print(
                 "The shop is currently out of stock. Please check back later.")
             return
 
-        for item in shop_items:
+        for item in shop_items: #iterates over filtered items to add rows to table that is being printed
             table.add_row(str(item.item_id), item.item.name,
                           str(item.price), str(item.quantity))
 
-        self.console.print(table)
+        self.console.print(table) #prints table
 
     def show_player_inventory(self):
         self.console.print("[bold]Player Inventory[/bold]")
+        #creates table to be printed using the player inventory
         table = Table(title="Player Inventory",
                       show_header=True, header_style="bold")
         table.add_column("ID", justify="right")
         table.add_column("Item")
         table.add_column("Quantity", justify="right")
 
-        inventory_items = session.query(
+        inventory_items = session.query( #queries from the PlayerInventory table to get items and assign it to inventory_items variable
             PlayerInventory).join(FoodAndDrinks).all()
 
-        if not inventory_items:
+        if not inventory_items: #checks if you have no items and prints to tell you accordingly
             self.console.print("Your inventory is empty.")
             return
 
-        for item in inventory_items:
+        for item in inventory_items: #iterates over inventory_items and adds a row to the printed table for each
             table.add_row(str(item.item_id), item.item.name,
                           str(item.quantity))
 
-        self.console.print(table)
+        self.console.print(table) #prints the table
 
     def buy_item(self):
         self.console.print("[bold]Buy Item[/bold]")
-        shop_items = session.query(ShopInventory).join(FoodAndDrinks).filter(
+        shop_items = session.query(ShopInventory).join(FoodAndDrinks).filter( #queries the ShopInventory table and filters by location to fill the shop_items variable accordingly
             ShopInventory.location_id == self.current_location.id).all()
 
-        if not shop_items:
+        if not shop_items: #if theres no items say out of stock
             self.console.print(
                 "The shop is currently out of stock. Please check back later.")
             return
 
         item_choices = {}
-        for item in shop_items:
+        for item in shop_items: # iterate over each item to create a choice for each
             item_choices[str(item.item_id)] = item
 
         item_prompt = Prompt.ask(
-            "Can you enter the ID of the item you want to purchase?:", choices=item_choices)
+            "Can you enter the ID of the item you want to purchase?:", choices=item_choices) #prompts the user to ask for an item by id
 
-        if not item_prompt:
+        if not item_prompt: # if no item prompt thanks them for visiting
             self.console.print(
                 "Thank you for visiting the Sandridge shop! See you next time!")
             return
 
-        selected_item = item_choices[item_prompt]
-        quantity = int(Prompt.ask("Great! How many would you like to buy?:"))
+        selected_item = item_choices[item_prompt] # assigns selected item to selected_item variable
+        quantity = int(Prompt.ask("Great! How many would you like to buy?:")) #asks for a quantity amount 
 
-        if selected_item.quantity >= quantity:
+        if selected_item.quantity >= quantity: # checks if theres enough quantity to buy if there is add the item to the player inventory
             total_cost = selected_item.price * quantity
             player_item = session.query(PlayerInventory).filter_by(
                 item_id=selected_item.item_id).first()
@@ -214,18 +215,18 @@ class CLI:
                     item_id=selected_item.item_id, quantity=quantity)
                 session.add(player_item)
 
-            selected_item.quantity -= quantity
+            selected_item.quantity -= quantity #subtracts selected quantity from shop quantity
             session.commit()
 
-            self.console.print(
+            self.console.print( #prints message thanking them
                 f"You have successfully purchased {quantity} {selected_item.item.name}(s) for a total cost of {total_cost}."
             )
         else:
-            self.console.print(
+            self.console.print( #tells user not enough in stock
                 f"Sorry, there is not enough stock for {quantity} {selected_item.item.name}(s). Please try again later."
             )
 
-    def quit(self):
+    def quit(self): #quits the cli if quit is called
         self.console.print(
             "Thank you for visiting the Sandridge! See you next time!")
         raise SystemExit

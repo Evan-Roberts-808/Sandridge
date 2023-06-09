@@ -54,4 +54,28 @@ pipenv install && pipenv shell
 python cli.py
 ```
 ---
+## Functions
 
+**run**: The run function displays an ASCII art of the projects titled followed by a message and prompts for the user to input in order to call other functions.
+- 1 Select location
+- 2 Show player inventory
+- q quit
+
+Once a location is selected the prompts will change to display the following:
+- 1 Select Location
+- 2 Show player inventory
+- 3 View shop
+- 4 Buy item
+- q quit
+
+**restock_shop**: The restock_shop function pulls data from our food_and_drinks table and adds it to the shop_inventory table along with the quantity and location id required to filter the shops by which shop is selected by the user. It also acts as a way of preventing the shop_inventory from receiving duplicate items by checking whether or not they are already within the shop_inventory table.
+
+**select_location**: The select_location function prompts the user to select from a list of locations and on choice will display a corresponding ASCII art for that location. This will also filter the shop_inventory by whichever location is selected.
+
+**show_player_inventory**: The show_player_inventory function creates a table using rich with data queried from the PlayerInventory table. If the table is empty, it'll display a message letting you know the inventory is empty.
+
+**view_shop**: The view_shop function creates a table using rich with data queried from the ShopInventory table. This queried data is filtered by location id based on which location is selected.
+
+**buy_item**: The buy_item function prompts the user to enter an id from the current shop they are viewing along with a quantity, this is then subtracted from the shop quantity and added to the player_inventory table accordingly.
+
+**quit**: The quit function displays a thank you message to the user then raises a SystemExit event to end the CLI.

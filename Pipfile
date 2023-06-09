@@ -5,13 +5,8 @@ name = "pypi"
 
 [packages]
 ipdb = "*"
-pyinquirer = "*"
-prompt-toolkit = "*"
 sqlalchemy = "*"
 alembic = "*"
-click = "*"
-colorama = "*"
-pyfiglet = "*"
 rich = "*"
 
 [dev-packages]
